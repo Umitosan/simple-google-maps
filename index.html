@@ -14,27 +14,21 @@
 
       <div class="row button-row">
         <div class="col-sm-6">
+          <h4>Change Map Theme </h4>
           <select class="theme">
             <option value="google_styles_Vintage">Vintage</option>
             <option value="google_styles_AnnexPOI">Annex POI</option>
             <option value="google_styles_lucernewaterch1">lucerne waterch 1</option>
             <option value="google_styles_Belgium">Belgium</option>
           </select>
-          <h3>Current Theme: <span id="theme_number"></span><span id="theme_name"></span></h3>
         </div>
         <div class="col-sm-6">
-          <label for="search_city">Lookup a city</label>
+          <label for="search_city">Lookup a city</label><br>
           <input type="text" name="search_city"><br>
           <button type="button" class="btn btn-info search_city" name="search_city">Search</button>
         </div>
       </div>
-
-      <div class="row map-row">
-        <div class="col-md-12">
-          <div id="map"></div>
-        </div>
-      </div>
-
+      <div id="map"></div>
     </div>
 
   </body>
