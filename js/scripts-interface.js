@@ -2,21 +2,10 @@ var apiKey = require('./../.env').apiKey;
 var mapsApi = require('google-maps-api')( apiKey );
 
 function mapsGeo(myAddress, userTheme) {
-  var myCoord = [];
   require('google-maps-api/geocode')( {address: myAddress} ).then( function( result ) {
-    var lat = result[0].geometry.location.lat();
-    var lng = result[0].geometry.location.lng();
-    var tmpLat = parseFloat(lat);
-    var tmpLng = parseFloat(lng);
-    var myLat = (Math.round( tmpLat * 1e4 ) / 1e4);
-    var myLng = (Math.round( tmpLng * 1e4 ) / 1e4);
-    myCoord.push(myLat);
-    myCoord.push(myLng);
-  }).then(function() {
-    myInitMap(userTheme, myCoord);
+    mylatlng = new google.maps.LatLng(result[0].geometry.location.lat(),result[0].geometry.location.lng());
+    map.panTo(mylatlng);
   });
-  // console.log("myCoord: ", myCoord);
-  // return myCoord;
 }
 
 function myInitMap(selectedTheme, selectedCoords) {
@@ -46,8 +35,7 @@ function myInitMap(selectedTheme, selectedCoords) {
 
 $(document).ready(function(){
 
-  var userTheme = google_styles_Vintage;
-  var currentCoords = [45.5231, -122.6765];
+  var userTheme = themeHash['google_styles_Vintage'];
 
   // on first page load, center on Portland
   myInitMap(userTheme, [45.5231, -122.6765]);
@@ -55,43 +43,15 @@ $(document).ready(function(){
   $('.search_city').click(function(){
     var city = $('input[name="search_city"]').val();
     mapsGeo(city, userTheme);
-    // console.log("coords: ", coords);
   });
 
   $('.theme').change(function() {
     var theme = $('.theme :selected').val();
-    switch(theme) {
-      case "Vintage":
-          userTheme = google_styles_Vintage;
-          break;
-      case "AnnexPOI":
-          userTheme = google_styles_AnnexPOI;
-          break;
-      case "lucernewaterch1":
-          userTheme = google_styles_lucernewaterch1;
-          break;
-      case "Belgium":
-          userTheme = google_styles_Belgium;
-          break;
-      default:
-        console.log('Theme selector error');
-        break;
-    }
-    myInitMap(userTheme, currentCoords);
+    map.setOptions({styles: themeHash[theme]});
   });
-
-
 
 });
 
-
-// NOTES
-// function pla ceMarker(position, map) {
-//   var marker = new google.maps.Marker({
-//     position: myLatLng,
-//     map: map
-//   });
-// }
 
 // var infowindow = new google.maps.InfoWindow({
 //   content: ""
