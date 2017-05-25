@@ -1,21 +1,43 @@
 var apiKey = require('./../.env').apiKey;
-var mapsapi = require('google-maps-api')( apiKey );
+var mapsApi = require('google-maps-api')( apiKey );
 
-function myInitMap(selectedTheme) {
-  mapsapi().then( function( maps ) {
+function mapsGeo(myAddress, userTheme) {
+  var myCoord = [];
+  require('google-maps-api/geocode')( {address: myAddress} ).then( function( result ) {
+    var lat = result[0].geometry.location.lat();
+    var lng = result[0].geometry.location.lng();
+    var tmpLat = parseFloat(lat);
+    var tmpLng = parseFloat(lng);
+    var myLat = (Math.round( tmpLat * 1e4 ) / 1e4);
+    var myLng = (Math.round( tmpLng * 1e4 ) / 1e4);
+    myCoord.push(myLat);
+    myCoord.push(myLng);
+  }).then(function() {
+    myInitMap(userTheme, myCoord);
+  });
+  // console.log("myCoord: ", myCoord);
+  // return myCoord;
+}
+
+function myInitMap(selectedTheme, selectedCoords) {
+  mapsApi().then( function( maps ) {
+    var lat = selectedCoords[0];
+    var lng = selectedCoords[1];
+    var mapCoords = new google.maps.LatLng(lat,lng);
+
     map = new google.maps.Map($('#map')[0], {
-      center: {lat: 45.5231, lng: -122.6765},
+      center: mapCoords,
       zoom: 8,
       styles: selectedTheme
     });
+
     google.maps.event.addListener(map, 'click', function(e) {
-      // placeMarker(e.latLng, map);
       var myLat = e.latLng.lat();
       var myLng = e.latLng.lng();
       var infowindow = new google.maps.InfoWindow({
         position: e.latLng,
-        content: "<h4>Lattitude: " + myLat.toFixed(3) + "</h4>" +
-            "<h4>Longitude: " + myLng.toFixed(3)  + "</h4>"
+        content: "<h4>Lattitude: " + myLat + "</h4>" +
+            "<h4>Longitude: " + myLng  + "</h4>"
       });
       infowindow.open(map);
     });
@@ -25,6 +47,16 @@ function myInitMap(selectedTheme) {
 $(document).ready(function(){
 
   var userTheme = google_styles_Vintage;
+  var currentCoords = [45.5231, -122.6765];
+
+  // on first page load, center on Portland
+  myInitMap(userTheme, [45.5231, -122.6765]);
+
+  $('.search_city').click(function(){
+    var city = $('input[name="search_city"]').val();
+    mapsGeo(city, userTheme);
+    // console.log("coords: ", coords);
+  });
 
   $('.theme').change(function() {
     var theme = $('.theme :selected').val();
@@ -42,19 +74,19 @@ $(document).ready(function(){
           userTheme = google_styles_Belgium;
           break;
       default:
-        "nothing"
+        console.log('Theme selector error');
         break;
     }
-    myInitMap(userTheme);
+    myInitMap(userTheme, currentCoords);
   });
 
-  myInitMap(userTheme);
+
 
 });
 
 
 // NOTES
-// function placeMarker(position, map) {
+// function pla ceMarker(position, map) {
 //   var marker = new google.maps.Marker({
 //     position: myLatLng,
 //     map: map
